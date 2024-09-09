@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: Bundestag Tagesordnung API
+  description: An unofficial API for accessing the agenda of the Bundestag in multiple formats (iCal, JSON, XML, CSV). The agenda is scraped and updated every 15 minutes.
+  version: 1.0.0
+servers:
+  - url: https://api.hutt.io/bt-to/
+paths:
+  /:
+    get:
+      summary: Get API documentation
+      description: Returns HTML documentation for the API.
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html:
+              schema:
+                type: string
+  /data-list:
+    get:
+      summary: Get available data sets
+      description: Returns a list of available weeks and years for which the agenda data is stored.
+      responses:
+        '200':
+          description: A list of available data sets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  years:
+                    type: array
+                    items:
+                      type: string
+                  weeks:
+                    type: array
+                    items:
+                      type: string
+  /json:
+    get:
+      summary: Get agenda in JSON format
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Year for which agenda data is requested.
+        - in: query
+          name: week
+          schema:
+            type: integer
+          description: Week for which agenda data is requested.
+      responses:
+        '200':
+          description: A list of agenda items in JSON format.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                    end:
+                      type: string
+                    top:
+                      type: string
+                    thema:
+                      type: string
+                    status:
+                      type: string
+                    beschreibung:
+                      type: string
+                    url:
+                      type: string
+
+  /ical:
+    get:
+      summary: Get agenda in iCal format
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Year for which agenda data is requested.
+        - in: query
+          name: week
+          schema:
+            type: integer
+          description: Week for which agenda data is requested.
+        - in: query
+          name: na
+          schema:
+            type: boolean
+          description: Add additional entries for nominal votes.
+        - in: query
+          name: naAlarm
+          schema:
+            type: boolean
+          description: Set an alarm 15 minutes before nominal votes.
+        - in: query
+          name: showSW
+          schema:
+            type: boolean
+          description: Include all-day events for session weeks.
+      responses:
+        '200':
+          description: The agenda as iCal feed.
+          content:
+            text/calendar:
+              schema:
+                type: string
+
+  /xml:
+    get:
+      summary: Get agenda in XML format
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Year for which agenda data is requested.
+        - in: query
+          name: week
+          schema:
+            type: integer
+          description: Week for which agenda data is requested.
+      responses:
+        '200':
+          description: The agenda as XML.
+          content:
+            application/xml:
+              schema:
+                type: string
+
+  /csv:
+    get:
+      summary: Get agenda in CSV format
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Year for which agenda data is requested.
+        - in: query
+          name: week
+          schema:
+            type: integer
+          description: Week for which agenda data is requested.
+      responses:
+        '200':
+          description: The agenda as CSV.
+          content:
+            text/csv:
+              schema:
+                type: string
+  /purge:
+    post:
+      summary: Purge cached agenda data
+      description: Purge the cache and KV storage.
+      responses:
+        '200':
+          description: Cache and KV storage cleared.
